@@ -1,59 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { Tabs } from 'expo-router';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 
 export default function TabLayout() {
+  const [userDoc, setUserDoc] = useState('');
   const colorScheme = useColorScheme();
+
+  const getUserData = async () => {
+    const jsonValue = await AsyncStorage.getItem('@AuthPetAZ');
+    const jsonValueFormatted = jsonValue != null ? JSON.parse(jsonValue) : null;
+    setUserDoc(jsonValueFormatted.document);
+  }
+
+  useEffect(() => {
+    getUserData()
+  }, [])
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        headerShown: false,
       }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          title: 'Home',
+          tabBarIcon: ({ color }) => <Entypo name="home" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="servicesOrPets"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: userDoc.length === 14 ? 'Services' : 'Pets',
+          tabBarIcon: ({ color }) => {
+            if (userDoc.length === 14) {
+              return <MaterialCommunityIcons name="room-service" size={28} color={color} />
+            } else {
+              return <MaterialIcons name="pets" size={28} color={color} />
+            }
+          },
         }}
       />
+
     </Tabs>
   );
 }
