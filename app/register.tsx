@@ -6,24 +6,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
 import userRegister from '@/services/userRegister';
+import ButtonNoColor from '@/components/ButtonNoColor';
+import { router } from 'expo-router';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [document, setDocument] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const register = () => {
-    if (name === '' || document === ''|| email === '' || password === '') {
-      Alert.alert('Please fill in all required fields!')
-    } else if (document.length === 14 || document.length === 11) {
-      userRegister(name, document, email, password);
-      setName('');
-      setDocument('');
-      setEmail('');
-      setPassword('');
-      Alert.alert("User created successfully!");
-    }
+    userRegister(name, document, email, password)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  }
+
+  const goToLogin = () => {
+    router.replace('/');
   }
 
   return (
@@ -49,7 +53,9 @@ export default function RegisterScreen() {
         value={password} 
         onChangeText={setPassword} 
         secureTextEntry />
-      <Button title='Register' onPress={() => register()} />
+      <Button title='Register' onPress={register} />
+      <ButtonNoColor title='Login' onPress={goToLogin} />
+      <Text style={styles.error}>{error}</Text>
     </SafeAreaView>
   );
 }
@@ -59,6 +65,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  error: {
+    color: '#6f0404',
+    fontWeight: '500'
   },
   title: {
     color: 'black',

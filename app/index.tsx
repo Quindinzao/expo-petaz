@@ -8,21 +8,22 @@ import Button from '@/components/Button';
 import authService from '@/services/authService';
 import ButtonNoColor from '@/components/ButtonNoColor';
 import { router } from 'expo-router';
-import api from '@/services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const authentication = () => {
-    api.post('/users/auth', { email: email, password: password })
-      .then(response => {
-        AsyncStorage.setItem('@AuthPetAZ', JSON.stringify(response.data));
+    authService(email, password)
+      .then((response) => {
+        console.log(response);
+        AsyncStorage.setItem('@AuthPetAZ', JSON.stringify(response));
         router.replace('/(tabs)/home');
       })
       .catch(error => {
-        
+        setError(error.message);
       });
   }
 
@@ -46,6 +47,7 @@ export default function LoginScreen() {
         secureTextEntry />
       <Button title='Sign In' onPress={authentication} />
       <ButtonNoColor title='Register' onPress={goToRegister} />
+      <Text style={styles.error}>{error}</Text>
     </SafeAreaView>
   );
 }
@@ -55,6 +57,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  error: {
+    color: '#6f0404',
+    fontWeight: '500'
   },
   title: {
     color: 'black',

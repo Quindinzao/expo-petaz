@@ -1,4 +1,3 @@
-import { UserProps } from '@/interfaces/UserProps';
 import api from './api';
 
 const getPet = (
@@ -12,7 +11,7 @@ const getPet = (
     .catch(error => {
       console.error(error.message);
 
-      return 'Opa!';
+      return error.message;
     });
 };
 
