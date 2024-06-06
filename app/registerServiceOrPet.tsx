@@ -1,11 +1,10 @@
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
-import userRegister from '@/services/userRegister';
 import ButtonNoColor from '@/components/ButtonNoColor';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,16 +16,26 @@ export default function RegisterScreen() {
   const [nameOrTitle, setNameOrTitle] = useState('');
   const [speciesOrDescription, setSpeciesOrDescription] = useState('');
   const [userData, setUserData] = useState<UserProps>();
+  const [error, setError] = useState('');
 
-  const registerPetOrService = () => {
-    if (userData && userData.document.length === 14) {
-
-    } else if (userData && userData.document.length === 11) {
-      petRegister(nameOrTitle, speciesOrDescription, userData);
-    }
-
+  const clearStates = () => {
     setNameOrTitle('');
     setSpeciesOrDescription('');
+  }
+
+  const registerPetOrService = async () => {
+    console.log('userData: ', userData);
+    if (userData?.document.length === 14) {
+
+    } else if (userData?.document.length === 11) {
+      await petRegister(nameOrTitle, speciesOrDescription, userData)
+        .then(() => {
+          clearStates();
+        })
+        .catch(error => {
+          setError(error.message);
+        });
+    }
   }
 
   const getUserData = async () => {
@@ -53,6 +62,7 @@ export default function RegisterScreen() {
         onChangeText={setSpeciesOrDescription} />
       <Button title='Register' onPress={registerPetOrService} />
       <ButtonNoColor title='Back' onPress={() => router.back()} />
+      <Text style={styles.error}>{error}</Text>
     </SafeAreaView>
   );
 }
@@ -62,6 +72,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  error: {
+    color: '#6f0404',
+    fontWeight: '500'
   },
   title: {
     color: 'black',

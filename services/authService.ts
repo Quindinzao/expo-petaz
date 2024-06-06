@@ -1,8 +1,8 @@
 // Services
 import api from './api';
 
-const authService = async (email: string, password: string) => {
-  await api.post('/users/auth', { email: email, password: password })
+const authService = (email: string, password: string) => {
+  return api.post('/users/auth', { email: email, password: password })
 };
 
 export default authService;

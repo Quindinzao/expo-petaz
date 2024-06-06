@@ -1,18 +1,9 @@
 import api from './api';
 
-const getPet = (
+const getPet = async (
   id: string
 ) => {
-  api.get(`/pets/byUser/${id}`)
-    .then(response => {
-      console.log('pets: ', response.data);
-      return response.data;
-    })
-    .catch(error => {
-      console.error(error.message);
-
-      return error.message;
-    });
+  return await api.get(`/pets/byUser/${id}`);
 };
 
 export default getPet;

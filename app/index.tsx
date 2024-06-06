@@ -18,8 +18,7 @@ export default function LoginScreen() {
   const authentication = () => {
     authService(email, password)
       .then((response) => {
-        console.log(response);
-        AsyncStorage.setItem('@AuthPetAZ', JSON.stringify(response));
+        AsyncStorage.setItem('@AuthPetAZ', JSON.stringify(response.data));
         router.replace('/(tabs)/home');
       })
       .catch(error => {
