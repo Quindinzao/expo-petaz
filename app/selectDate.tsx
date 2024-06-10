@@ -56,7 +56,7 @@ export default function SelectDateScreen() {
           .then(() => {
             setError('');
             setDate('');
-            router.replace('/(tabs)/home');
+            router.back();
           })
           .catch(error => {
             setError(error.message);
