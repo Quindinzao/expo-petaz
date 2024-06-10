@@ -1,15 +1,22 @@
+// External libraries
 import { StyleSheet } from 'react-native';
-
 import { Text, View } from '@/components/Themed';
 import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Components
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
 import ButtonNoColor from '@/components/ButtonNoColor';
-import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProps } from '@/interfaces/UserProps';
+
+// Services
 import petRegister from '@/services/petRegister';
+import serviceRegister from '@/services/serviceRegister';
+
+// Interfaces
+import { UserProps } from '@/interfaces/UserProps';
 
 export default function RegisterScreen() {
 
@@ -24,9 +31,14 @@ export default function RegisterScreen() {
   }
 
   const registerPetOrService = async () => {
-    console.log('userData: ', userData);
     if (userData?.document.length === 14) {
-
+      await serviceRegister(nameOrTitle, speciesOrDescription, userData)
+        .then(() => {
+          clearStates();
+        })
+        .catch(error => {
+          setError(error.message);
+        });
     } else if (userData?.document.length === 11) {
       await petRegister(nameOrTitle, speciesOrDescription, userData)
         .then(() => {
@@ -50,7 +62,7 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Register Pet</Text>
+      <Text style={styles.title}>{userData?.document.length === 14 ? "Register Service" : "Register Pet"}</Text>
       <View style={styles.separator} lightColor="#000" darkColor="#000" />
       <TextField 
         placeholder={userData?.document.length === 14 ? "Title" : "Name"} 

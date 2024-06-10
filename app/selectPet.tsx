@@ -3,25 +3,25 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 // Components
 import { Text, View } from '@/components/Themed';
 import RoundedButton from '@/components/RoundedButton';
 import ItemFlat from '@/components/ItemFlat';
+import RefreshButton from '@/components/RefreshButton';
+import ButtonNoColor from '@/components/ButtonNoColor';
 
 // Services
 import getPet from '@/services/getPets';
-import getServicesByDoc from '@/services/getServicesByDoc';
 
 // Interfaces
 import { PetProps } from '@/interfaces/PetProps';
 import { ServiceProps } from '@/interfaces/ServiceProps';
-import RefreshButton from '@/components/RefreshButton';
 
 export default function ServicesOrPets() {
+  const itemFromHome = useLocalSearchParams();
   const [petsData, setPetsData] = useState<Array<PetProps>>([]);
-  const [servicesData, setServicesData] = useState<Array<ServiceProps>>([]);
   const [userDoc, setUserDoc] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -40,27 +40,36 @@ export default function ServicesOrPets() {
       });
   }
 
-  const getServiceFromUser = async (id: string) => {
-    await getServicesByDoc(id)
-      .then(response => {
-        setServicesData(response.data);
-      })
-      .catch(error => {
-        setError(error.message);
-      });
-  }
-
   const getUserId = async () => {
     const jsonValue = await AsyncStorage.getItem('@AuthPetAZ');
     const jsonValueFormatted = jsonValue != null ? JSON.parse(jsonValue) : null;
 
-    if (userDoc.length === 11) {
-      getPetFromUser(jsonValueFormatted.id);
-    } else if (userDoc.length === 14) {
-      getServiceFromUser(jsonValueFormatted.document);
-    }
+    getPetFromUser(jsonValueFormatted.id);
 
     setUserDoc(jsonValueFormatted.document);
+  }
+
+  const goToSelectDate = (item: any) => {
+    const itemToSend = {
+      serviceId: itemFromHome.serviceId,
+      serviceTitle: itemFromHome.serviceTitle,
+      serviceDescription: itemFromHome.serviceDescription,
+      userServiceId: itemFromHome.userServiceId,
+      userServiceName: itemFromHome.userServiceName,
+      userServiceDocument: itemFromHome.userServiceDocument,
+      userServiceEmail: itemFromHome.userServiceEmail,
+      userServicePassword: itemFromHome.userServicePassword,
+      petId: item.id,
+      petName: item.name,
+      petSpecies: item.species,
+      userPetId: item.user.id,
+      userPetName: item.user.name,
+      userPetDocument: item.user.document,
+      userPetEmail: item.user.email,
+      userPetPassword: item.user.password
+    }
+
+    router.push({ pathname: 'selectDate', params: itemToSend })
   }
 
   useEffect(() => {
@@ -72,29 +81,30 @@ export default function ServicesOrPets() {
   }, 2000);
 
   const renderItemPets = ({ item }: any) => (
-    <ItemFlat title={item.name} titleLabel='Name: ' body={item.species} bodyLabel='Species: ' />
-  );
-
-  const renderItemServices = ({ item }: any) => (
-    <ItemFlat title={item.title} titleLabel='Title: ' body={item.description} bodyLabel='Description: ' />
+    <ItemFlat 
+      title={item.name} 
+      titleLabel='Name: ' 
+      body={item.species} 
+      bodyLabel='Species: '
+      onPress={() => goToSelectDate(item)} />
   );
 
   return (
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.title}>{userDoc.length === 14 ? 'Services' : 'Pets'}</Text>
+      <Text style={styles.title}>Select your pet</Text>
       <View style={styles.separator} lightColor="#000" darkColor="rgba(255,255,255,0.1)" />
 
       {!isLoading && !error &&
         <>
-          {petsData.length > 0 || servicesData.length > 0
+          {petsData.length > 0
             ? <FlatList
-                data={userDoc.length === 11 ? petsData : servicesData}
+                data={petsData}
                 keyExtractor={(item: PetProps | ServiceProps) => item.id}
-                renderItem={userDoc.length === 11 ? renderItemPets : renderItemServices}
+                renderItem={renderItemPets}
                 style={styles.listContainer}
               />
-            : <Text>There are no {userDoc.length === 11 ? 'pets' : 'services'} registered here!</Text>
+            : <Text>There are no pets registered here!</Text>
           }
           <RoundedButton onPress={goToCreated} />
           <RefreshButton onPress={() => setIsLoading(true)} />
@@ -106,6 +116,8 @@ export default function ServicesOrPets() {
           <ActivityIndicator size={'large'} color={'#004a7f'} />
         </View>
       }
+
+<ButtonNoColor title='Back' onPress={() => router.back()} />
     </SafeAreaView>
   );
 }

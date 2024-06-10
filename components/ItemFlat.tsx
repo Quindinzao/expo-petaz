@@ -1,24 +1,30 @@
 import React from 'react';
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ItemFlatProps {
   title: string;
-  description: string;
+  body: string;
+  titleLabel: string;
+  bodyLabel: string;
+  onPress?: () => void;
 }
 const ItemFlat = (props: ItemFlatProps) => {
   return (
-    <View style={styles.itemFlatContainer}>
-      <View style={styles.itemFlat}>
+    <TouchableOpacity style={styles.itemFlatContainer}>
+      <TouchableOpacity 
+        style={styles.itemFlat}
+        onPress={props.onPress} 
+        activeOpacity={props.onPress ? 0.7 : 1}>
         <View style={styles.row}>
-          <Text style={styles.itemFlatTitle}>Name: </Text>
-          <Text style={styles.itemFlatTitle}>{props.title}</Text>
+          <Text style={styles.label}>{props.titleLabel}</Text>
+          <Text style={styles.itemFlatTitle} numberOfLines={2} ellipsizeMode="tail">{props.title}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.itemFlatTitle}>Species: </Text>
-          <Text style={styles.itemFlatTitle}>{props.description}</Text>
+          <Text style={styles.label}>{props.bodyLabel}</Text>
+          <Text style={styles.itemFlatTitle} numberOfLines={2} ellipsizeMode="tail">{props.body}</Text>
         </View>
-      </View>
-    </View>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
@@ -36,10 +42,11 @@ const styles = StyleSheet.create({
     height: 100,
 
     paddingHorizontal: 16,
+    paddingVertical: 8,
     
     backgroundColor: '#fff',
     alignItems: 'flex-start',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
 
     borderRadius: 0,
 
@@ -56,9 +63,17 @@ const styles = StyleSheet.create({
     // bottom: 12
   },
   itemFlatTitle: {
+    flex: 1,
     color: '#000',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
+    textTransform: 'capitalize'
+  },
+  label: {
+    width: 100,
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
     textTransform: 'capitalize'
   },
   row: {

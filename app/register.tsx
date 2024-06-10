@@ -18,8 +18,12 @@ export default function RegisterScreen() {
 
   const register = () => {
     userRegister(name, document, email, password)
-      .then((response) => {
-        console.log(response.data);
+      .then(() => {
+        setName('');
+        setDocument('');
+        setEmail('');
+        setPassword('');
+        setError('');
       })
       .catch((error) => {
         setError(error.message);
