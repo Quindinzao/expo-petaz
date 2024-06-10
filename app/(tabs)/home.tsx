@@ -35,6 +35,7 @@ export default function HomeScreen() {
     await getAllServices()
       .then(response => {
         setServices(response.data);
+        setErrorServices('');
       })
       .catch((error) => {
         setErrorServices(error.message);
@@ -45,6 +46,7 @@ export default function HomeScreen() {
     await getAppointments(id, doc)
       .then(response => {
         setAppointments(response.data);
+        setErrorAppointments('');
       })
       .catch((error) => {
         setErrorAppointments(error.message);
@@ -86,25 +88,6 @@ export default function HomeScreen() {
     }
     router.push({ pathname: 'selectPet', params: itemToSend });
   };
-
-  const renderItemServices = ({ item }: any) => (
-    <ItemFlat 
-      title={item.title} 
-      titleLabel='Title: ' 
-      body={item.description} 
-      bodyLabel='Description: '
-      onPress={() => goToSelectPet(item)}
-    />
-  );
-
-  const renderItemAppointments = ({ item }: any) => (
-    <ItemFlat 
-      title={item.appointmentTime} 
-      titleLabel='Date: ' 
-      body={item.pet.name} 
-      bodyLabel='Pet: '
-    />
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -183,6 +166,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   error: {
+    textAlign: 'center',
     marginBottom: 36,
     color: '#6f0404',
     fontWeight: '500'
